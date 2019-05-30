@@ -50,9 +50,16 @@ def refresh(user, config):
 
     yt = youtube(debug, config)
 
+    playlists = []
     if debug > 0:
         print(f"[debug] retrieving playlists for user '{user}'")
-    playlists = yt.get_playlists_by_user(user)
+    try:
+        playlists = yt.get_playlists_by_user(user)
+    except Exception as e:
+        print("[error] playlist refresh failure, remote side issue")
+        if debug > 0:
+            print(str(e))
+
     for playlist in playlists:
         id = playlist[0]
         title = playlist[1]
