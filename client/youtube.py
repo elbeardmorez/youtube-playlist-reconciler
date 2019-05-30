@@ -43,7 +43,10 @@ class youtube:
                   part="id,snippet", channelId=channel,
                   fields="items(id,snippet/title)",
                   maxResults=RESULTS_PER_PAGE).execute()
-        playlists = [[item["id"], item["snippet"]["title"]] for item in data["items"]]
+        playlists = [[item["id"], bytes.decode(
+                        str.encode(item["snippet"]["title"], "utf8"),
+                        "utf8")]
+                            for item in data["items"]]
         playlists_count = len(playlists)
         if self.debug > 0:
             print(f"[debug] search found {playlists_count} playlist" +
@@ -96,5 +99,8 @@ class youtube:
                 nextPageToken = data["nextPageToken"]
 
         items = [[item["snippet"]["resourceId"]["videoId"],
-                  item["snippet"]["title"]] for item in items]
+                  bytes.decode(
+                      str.encode(item["snippet"]["title"], 'utf8'),
+                      "utf8")]
+                          for item in items]
         return items
