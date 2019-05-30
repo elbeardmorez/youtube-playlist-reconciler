@@ -79,6 +79,7 @@ def run():
     global debug
     global lists
 
+    user = ""
     target = "-"
 
     config_read()
@@ -86,14 +87,15 @@ def run():
         raise Exception("[error] no 'api_key' entry found in config")
     if debug > 0:
         print(f"[debug] using developer api key: '{config['api_key']}'")
-    if "user" not in config:
-        raise Exception("[error] no 'user' entry found in config")
-    if debug > 0:
-        print(f"[debug] using user: '{config['user']}'")
-    user = config["user"]
+    if "user" in config:
+        user = config["user"]
 
     parser = argparse.ArgumentParser(
         description='Youtube Playlist Reconciler')
+    parser.add_argument(
+        '-u', '--user', dest='user',
+        type=str, nargs='?', default="",
+        help="youtube user to target")
     parser.add_argument(
         '-d', '--dump', dest='dump', action='store_const',
         const=True, default=False,
@@ -113,6 +115,13 @@ def run():
         exit(0)
     if args.verbose:
         debug = 1
+    if len(args.user) > 0:
+        if len(user) > 0 and debug > 0:
+            print("[debug] overriding config user..")
+    if len(user) == 0:
+        raise Exception("[error] no 'user' set")
+    if debug > 0:
+        print(f"[debug] using user: '{user}'")
 
     if args.dump:
         if args.target:
