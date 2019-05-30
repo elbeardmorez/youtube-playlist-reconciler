@@ -2,6 +2,7 @@
 
 from client.youtube import youtube
 import os
+import sys
 import argparse
 import json
 
@@ -43,6 +44,9 @@ def run():
         help="enable verbose / debug output")
     args = parser.parse_args()
 
+    if not sys.argv[1:]:
+        parser.print_help()
+        exit(0)
     if args.verbose:
         debug = 1
     if debug > 0:
