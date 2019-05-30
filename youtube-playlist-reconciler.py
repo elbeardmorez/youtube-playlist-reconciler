@@ -2,13 +2,14 @@
 
 from client.youtube import youtube
 import os
+import argparse
 import json
 
 PATH_CONFIG = "config"
 
 # supplemented by cmdline args
 config = None
-debug = 1
+debug = 0
 
 def config_read():
     global config
@@ -34,7 +35,16 @@ def run():
     user = config["user"]
 
     yt = youtube(debug, config)
+    parser = argparse.ArgumentParser(
+        description='Youtube Playlist Reconciler')
+    parser.add_argument(
+        '-v', '--vebose', dest='verbose', action='store_const',
+        const=True, default=False,
+        help="enable verbose / debug output")
+    args = parser.parse_args()
 
+    if args.verbose:
+        debug = 1
     if debug > 0:
         print(f"[debug] retrieving playlists for user '{user}'")
     playlists = yt.get_playlists_by_user(user, config)
