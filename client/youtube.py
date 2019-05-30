@@ -12,10 +12,9 @@ class youtube:
     service = None
     debug = 0
 
-    def __init__(self, debug=0):
-        if debug > 0:
-            print("[debug] youtube service initialised")
+    def __init__(self, debug=0, config=None):
         self.debug = debug
+        self.initialise_service(config)
 
     def get_info(self):
         return {"version": self.version}
@@ -32,6 +31,9 @@ class youtube:
             self.service = build(API_SERVICE_NAME,
                                  API_VERSION,
                                  developerKey=config["api_key"])
+            if self.debug > 0 and self.service:
+                print("[debug] youtube service initialised")
+
         if not self.service:
             raise Exception("[error] no service available")
 

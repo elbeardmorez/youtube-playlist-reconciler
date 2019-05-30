@@ -33,7 +33,7 @@ def run():
         print(f"[debug] using user: '{config['user']}'")
     user = config["user"]
 
-    yt = youtube(debug)
+    yt = youtube(debug, config)
 
     if debug > 0:
         print(f"[debug] retrieving playlists for user '{user}'")
