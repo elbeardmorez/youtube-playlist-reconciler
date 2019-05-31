@@ -6,6 +6,7 @@ import sys
 import argparse
 import json
 import glob
+from collections import OrderedDict
 
 PATH_CONFIG = "config"
 
@@ -27,7 +28,33 @@ def config_read():
         config = json.load(f_config)
 
 
-def display(lists):
+def diffs(list_):
+    diffs = []
+    local = set(list_["items"]["local"].keys())
+    remote = set(list_["items"]["remote"].keys())
+    added = [list_["items"]["remote"][id] for id in (remote - local)]
+    added_count = len(added)
+    if added_count > 0:
+        list_["items"]["added"] = added
+        list_["items"]["added_count"] = added_count
+        diffs.append(f"added: {added_count}")
+    removed = [list_["items"]["remote"][id] for id in (local - remote)]
+    removed_count = len(removed)
+    if removed_count > 0:
+        list_["items"]["removed"] = removed
+        list_["items"]["removed_count"] = removed_count
+        diffs.append(f"removed: {removed_count}")
+    return " | ".join(diffs)
+
+
+def diffs_dump(list_):
+    if list_["items"]["added_count"] > 0:
+        print(f"  # added: {list_['items']['added_count']}")
+        for item in list_["items"]["added"]:
+            print(f"  [{item[0]}] {item[1]}")
+
+
+def display(lists, expand_state):
     print("playlists:")
     for list_ in lists.values():
         info = ""
@@ -39,7 +66,16 @@ def display(lists):
                     if "local_count" in list_["items"] else "-",
                 list_["items"]["remote_count"]
                     if "remote_count" in list_["items"] else "-")
+        diffs_ = ""
+        if "local" in list_["items"] and \
+           "remote" in list_["items"]:
+            diffs_ = diffs(list_)
+            if len(diffs_) > 0:
+                info += (" | " + diffs_)
         print(info)
+        # expanded info
+        if len(diffs_) > 0 and expand_state:
+            diffs_dump(list_)
 
 
 def rebuild(path):
@@ -54,7 +90,8 @@ def rebuild(path):
     for line in lines:
         o = json.loads(line)
         if line[0] != ' ':
-            list_ = {"id": o[0], "title": o[1], "items": {"local": []}}
+            list_ = {"id": o[0], "title": o[1],
+                     "items": {"local": OrderedDict()}}
         else:
             list_["items"]["local"][o[0]] = o
             count += 1
@@ -67,8 +104,8 @@ def dump(lists, target):
     overwrite = 0
     for list_ in lists.values():
         lines = json.dumps([list_["id"], list_["title"]])
-        lines += "\n  " + "\n  ".join([json.dumps(item)
-                                       for item in list_["items"]["local"]])
+        lines += "\n  " + "\n  ".join([json.dumps(item) for item in
+                                      list_["items"]["local"].values()])
         if target == "-":
             # stdout
             print(lines)
@@ -137,7 +174,8 @@ def refresh(user, config):
             lists[id]["id"] = id
             lists[id]["items"] = {}
         lists[id]["title"] = title
-        lists[id]["items"]["remote"] = items
+        lists[id]["items"]["remote"] = \
+            OrderedDict({item[0]: item for item in items})
         lists[id]["items"]["remote_count"] = items_count
 
 
@@ -170,6 +208,10 @@ def run():
         '-u', '--user', dest='user',
         type=str, nargs='?', default="",
         help="youtube user to target in channel / playlists search")
+    parser.add_argument(
+        '-xs', '--expand-state', dest='expand_state', action='store_const',
+        const=True, default=False,
+        help="expand state information to show added / removed items")
     parser.add_argument(
         '-d', '--dump', dest='dump', action='store_const',
         const=True, default=False,
@@ -213,14 +255,15 @@ def run():
     if args.dump:
         # write local set
         for id, list_ in lists.items():
-            if "local" not in list_["items"]:
+            if "local" not in list_["items"] or \
+               (args.overwrite and "remote" in list_["items"]):
                 list_["items"]["local"] = list_["items"]["remote"]
                 list_["items"]["local_count"] = list_["items"]["remote_count"]
         dump(lists, target if (target and args.overwrite) else "-")
 
     # default
     if not args.dump:
-        display(lists)
+        display(lists, args.expand_state)
 
 
 if __name__ == '__main__':
