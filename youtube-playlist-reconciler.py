@@ -5,11 +5,13 @@ import os
 import sys
 import argparse
 import json
+import glob
 
 PATH_CONFIG = "config"
 
 # supplemented by cmdline args
 config = None
+extension = ".ytpl"
 debug = 0
 
 # state
@@ -23,6 +25,23 @@ def config_read():
         return
     with open(PATH_CONFIG) as f_config:
         config = json.load(f_config)
+
+
+def rebuild_list(path):
+    if not os.path.exists(path):
+        print(f"[error] invalid list '{path}'")
+        return 1
+    lines = []
+    with open(path) as f:
+        lines = f.readlines()
+    list_ = None
+    for line in lines:
+        o = json.loads(line)
+        if line[0] != ' ':
+            list_ = {"id": o[0], "title": o[1], "items": {"local": []}}
+        else:
+            list_["items"]["local"].append(o)
+    return list_
 
 
 def dump_lists(lists, target):
@@ -42,7 +61,7 @@ def dump_lists(lists, target):
                     raise Exception(
                         "[error] couldn't make target directory" +
                         f"{target} :\n" + str(e))
-            path = os.path.join(target, list_["title"])
+            path = os.path.join(target, list_["title"] + extension)
             if os.path.exists(path) and overwrite == 0:
                 print("")
                 while True:
@@ -147,6 +166,15 @@ def run():
         exit(0)
     if args.verbose:
         debug = 1
+    if args.target:
+        # rebuild local set
+        target = args.target
+        for s in glob.glob(os.path.join(target, "*" + extension)):
+            list_ = rebuild_list(s)
+            if list_["id"] not in lists:
+                lists[list_["id"]] = list_
+            else:
+                lists[list_["id"]]["items"]["local"] = list_["items"]["local"]
 
     if args.refresh:
         # pull remote set
@@ -165,8 +193,6 @@ def run():
             if "local" not in list_["items"]:
                 list_["items"]["local"] = list_["items"]["remote"]
                 list_["items"]["local_count"] = list_["items"]["remote_count"]
-        if args.target:
-            target = args.target
         dump_lists(lists, target if (target and args.overwrite) else "-")
 
 
