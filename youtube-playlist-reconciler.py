@@ -104,7 +104,7 @@ def run():
     global lists
 
     user = ""
-    target = "-"
+    target = ""
 
     config_read()
     if "api_key" not in config:
@@ -117,17 +117,25 @@ def run():
     parser = argparse.ArgumentParser(
         description='Youtube Playlist Reconciler')
     parser.add_argument(
+        '-t', '--target', dest='target',
+        type=str, nargs='?', const=".",
+        help="path for local playlists set (default: '.')")
+    parser.add_argument(
+        '-r', '--refresh', dest='refresh', action='store_const',
+        const=True, default=False,
+        help="retrieve remote playlists set")
+    parser.add_argument(
         '-u', '--user', dest='user',
         type=str, nargs='?', default="",
-        help="youtube user to target")
+        help="youtube user to target in channel / playlists search")
     parser.add_argument(
         '-d', '--dump', dest='dump', action='store_const',
         const=True, default=False,
-        help="dump remote playlists")
+        help="dump local playlists to stdout")
     parser.add_argument(
-        '-t', '--target', dest='target',
-        type=str, nargs='?', const=".",
-        help="target path for local lists (default: '.')")
+        '-o', '--overwrite', dest='overwrite', action='store_const',
+        const=True, default=False,
+        help="overwrite local playlists set at target")
     parser.add_argument(
         '-v', '--vebose', dest='verbose', action='store_const',
         const=True, default=False,
@@ -139,23 +147,27 @@ def run():
         exit(0)
     if args.verbose:
         debug = 1
-    if len(args.user) > 0:
-        if len(user) > 0 and debug > 0:
-            print("[debug] overriding config user..")
-    if len(user) == 0:
-        raise Exception("[error] no 'user' set")
-    if debug > 0:
-        print(f"[debug] using user: '{user}'")
+
+    if args.refresh:
+        # pull remote set
+        if len(args.user) > 0:
+            if len(user) > 0 and debug > 0:
+                print("[debug] overriding config user..")
+        if len(user) == 0:
+            raise Exception("[error] no 'user' set")
+        if debug > 0:
+            print(f"[debug] using user: '{user}'")
+        refresh(user, config)
 
     if args.dump:
-        if args.target:
-            target = args.target
-        refresh(user, config)
+        # write local set
         for id, list_ in lists.items():
             if "local" not in list_["items"]:
                 list_["items"]["local"] = list_["items"]["remote"]
                 list_["items"]["local_count"] = list_["items"]["remote_count"]
-        dump_lists(lists, target if target else "-")
+        if args.target:
+            target = args.target
+        dump_lists(lists, target if (target and args.overwrite) else "-")
 
 
 if __name__ == '__main__':
