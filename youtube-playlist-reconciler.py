@@ -28,21 +28,21 @@ def config_read():
 def dump_lists(lists, target):
     overwrite = 0
     for list_ in lists.values():
-    lines = json.dumps([list_["id"], list_["title"]])
+        lines = json.dumps([list_["id"], list_["title"]])
         lines += "\n  " + "\n  ".join([json.dumps(item)
-                                 for item in list_["items"]["local"]])
-    if target == "-":
-        # stdout
-        print(lines)
-    else:
-        if not os.path.exists(target):
-            try:
-                os.mkdir(target)
-            except Exception as e:
-                raise Exception(
-                    "[error] couldn't make target directory" +
-                    f"{target} :\n" + str(e))
-        path = os.path.join(target, list_["title"])
+                                       for item in list_["items"]["local"]])
+        if target == "-":
+            # stdout
+            print(lines)
+        else:
+            if not os.path.exists(target):
+                try:
+                    os.mkdir(target)
+                except Exception as e:
+                    raise Exception(
+                        "[error] couldn't make target directory" +
+                        f"{target} :\n" + str(e))
+            path = os.path.join(target, list_["title"])
             if os.path.exists(path) and overwrite == 0:
                 print("")
                 while True:
@@ -58,8 +58,8 @@ def dump_lists(lists, target):
                             overwrite = 1
                         print(res)
                         break
-        with open(path, "w") as f:
-            f.write(lines)
+            with open(path, "w") as f:
+                f.write(lines)
 
 
 def refresh(user, config):
