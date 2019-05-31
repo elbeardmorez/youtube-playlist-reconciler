@@ -27,6 +27,21 @@ def config_read():
         config = json.load(f_config)
 
 
+def list_lists(lists):
+    print("playlists:")
+    for list_ in lists.values():
+        info = ""
+        info += f"[{list_['id']}] {list_['title']}"
+        if "local_count" in list_["items"] or \
+           "remote_count" in list_["items"]:
+            info += " | count(s): {0}|{1}".format(
+                list_["local_count"]
+                    if "local_count" in list_["items"] else "-",
+                list_["remote_count"]
+                    if "remote_count" in list_["items"] else "-")
+        print(info)
+
+
 def rebuild_list(path):
     if not os.path.exists(path):
         print(f"[error] invalid list '{path}'")
@@ -198,6 +213,10 @@ def run():
                 list_["items"]["local"] = list_["items"]["remote"]
                 list_["items"]["local_count"] = list_["items"]["remote_count"]
         dump_lists(lists, target if (target and args.overwrite) else "-")
+
+    # default
+    if not args.dump:
+        list_lists(lists)
 
 
 if __name__ == '__main__':
