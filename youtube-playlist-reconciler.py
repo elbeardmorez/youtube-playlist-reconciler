@@ -35,9 +35,9 @@ def list_lists(lists):
         if "local_count" in list_["items"] or \
            "remote_count" in list_["items"]:
             info += " | count(s): {0}|{1}".format(
-                list_["local_count"]
+                list_["items"]["local_count"]
                     if "local_count" in list_["items"] else "-",
-                list_["remote_count"]
+                list_["items"]["remote_count"]
                     if "remote_count" in list_["items"] else "-")
         print(info)
 
@@ -50,12 +50,16 @@ def rebuild_list(path):
     with open(path) as f:
         lines = f.readlines()
     list_ = None
+    count = 0
     for line in lines:
         o = json.loads(line)
         if line[0] != ' ':
             list_ = {"id": o[0], "title": o[1], "items": {"local": []}}
         else:
-            list_["items"]["local"].append(o)
+            list_["items"]["local"][o[0]] = o
+            count += 1
+    list_["items"]["local_count"] = count
+
     return list_
 
 
