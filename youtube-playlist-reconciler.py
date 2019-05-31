@@ -68,6 +68,7 @@ def dump_lists(lists, target):
                     sys.stdout.write(
                         f"[user] target '{list_['title']}' exists, " +
                         "[o]verwrite [a]ll, or [c]ancel? [o/a/c]:  ")
+                    sys.stdout.write("\033[1D")
                     sys.stdout.flush()
                     res = sys.stdin.read(1).lower()
                     if res == "c":
@@ -77,6 +78,9 @@ def dump_lists(lists, target):
                             overwrite = 1
                         print(res)
                         break
+                    # reset
+                    sys.stdout.write("\033[B\r\033[2K\r\033[A")
+                    sys.stdout.flush()
             with open(path, "w") as f:
                 f.write(lines)
 
