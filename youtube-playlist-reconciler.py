@@ -25,9 +25,11 @@ def config_read():
         config = json.load(f_config)
 
 
-def dump_list(list_, target):
+def dump_lists(lists, target):
+    overwrite = 0
+    for list_ in lists.values():
     lines = json.dumps([list_["id"], list_["title"]])
-    lines += "  " + "\n  ".join([json.dumps(item)
+        lines += "\n  " + "\n  ".join([json.dumps(item)
                                  for item in list_["items"]["local"]])
     if target == "-":
         # stdout
@@ -41,6 +43,21 @@ def dump_list(list_, target):
                     "[error] couldn't make target directory" +
                     f"{target} :\n" + str(e))
         path = os.path.join(target, list_["title"])
+            if os.path.exists(path) and overwrite == 0:
+                print("")
+                while True:
+                    sys.stdout.write(
+                        f"[user] target '{list_['title']}' exists, " +
+                        "[o]verwrite [a]ll, or [c]ancel? [o/a/c]:  ")
+                    sys.stdout.flush()
+                    res = sys.stdin.read(1).lower()
+                    if res == "c":
+                        return
+                    if res == "o" or res == "a":
+                        if res == "a":
+                            overwrite = 1
+                        print(res)
+                        break
         with open(path, "w") as f:
             f.write(lines)
 
@@ -138,7 +155,7 @@ def run():
             if "local" not in list_["items"]:
                 list_["items"]["local"] = list_["items"]["remote"]
                 list_["items"]["local_count"] = list_["items"]["remote_count"]
-            dump_list(list_, target if target else "-")
+        dump_lists(lists, target if target else "-")
 
 
 if __name__ == '__main__':
