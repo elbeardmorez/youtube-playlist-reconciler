@@ -6,6 +6,7 @@ API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
 RESULTS_PER_PAGE = 50  # max
 
+
 class youtube:
 
     version = "0.0.1"
@@ -45,8 +46,7 @@ class youtube:
                   maxResults=RESULTS_PER_PAGE).execute()
         playlists = [[item["id"], bytes.decode(
                         str.encode(item["snippet"]["title"], "utf8"),
-                        "utf8")]
-                            for item in data["items"]]
+                        "utf8")] for item in data["items"]]
         playlists_count = len(playlists)
         if self.debug > 0:
             print(f"[debug] search found {playlists_count} playlist" +
@@ -55,7 +55,6 @@ class youtube:
                 print("  " + "\n  ".join([json.dumps(playlist)
                                           for playlist in playlists]))
         return playlists
-
 
     def get_playlists_by_user(self, user, config=None):
         self.initialise_service(config)
@@ -101,6 +100,5 @@ class youtube:
         items = [[item["snippet"]["resourceId"]["videoId"],
                   bytes.decode(
                       str.encode(item["snippet"]["title"], 'utf8'),
-                      "utf8")]
-                          for item in items]
+                      "utf8")] for item in items]
         return items
