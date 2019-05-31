@@ -27,7 +27,7 @@ def config_read():
         config = json.load(f_config)
 
 
-def list_lists(lists):
+def display(lists):
     print("playlists:")
     for list_ in lists.values():
         info = ""
@@ -42,7 +42,7 @@ def list_lists(lists):
         print(info)
 
 
-def rebuild_list(path):
+def rebuild(path):
     if not os.path.exists(path):
         print(f"[error] invalid list '{path}'")
         return 1
@@ -63,7 +63,7 @@ def rebuild_list(path):
     return list_
 
 
-def dump_lists(lists, target):
+def dump(lists, target):
     overwrite = 0
     for list_ in lists.values():
         lines = json.dumps([list_["id"], list_["title"]])
@@ -193,7 +193,7 @@ def run():
         # rebuild local set
         target = args.target
         for s in glob.glob(os.path.join(target, "*" + extension)):
-            list_ = rebuild_list(s)
+            list_ = rebuild(s)
             if list_["id"] not in lists:
                 lists[list_["id"]] = list_
             else:
@@ -216,11 +216,11 @@ def run():
             if "local" not in list_["items"]:
                 list_["items"]["local"] = list_["items"]["remote"]
                 list_["items"]["local_count"] = list_["items"]["remote_count"]
-        dump_lists(lists, target if (target and args.overwrite) else "-")
+        dump(lists, target if (target and args.overwrite) else "-")
 
     # default
     if not args.dump:
-        list_lists(lists)
+        display(lists)
 
 
 if __name__ == '__main__':
