@@ -132,7 +132,6 @@ def dump(lists, target):
                     if res == "o" or res == "a":
                         if res == "a":
                             overwrite = 1
-                        print(res)
                         break
                     # reset
                     sys.stdout.write("\033[B\r\033[2K\r\033[A")
