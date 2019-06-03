@@ -23,6 +23,7 @@ optional arguments:
   -xs, --expand-state   expand state information to show added / removed items
   -d, --dump            dump local playlists to stdout
   -o, --overwrite       overwrite local playlists set at target
+  -nc, --no-colour      disable use of terminal colour escape codes
   -v, --vebose          enable verbose / debug output
 ```
 

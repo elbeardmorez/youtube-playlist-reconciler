@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from utils.constants import cursor
+from utils.constants import cursor, colours
 from client.youtube import youtube
 import os
 import sys
@@ -14,6 +14,7 @@ PATH_CONFIG = "config"
 # supplemented by cmdline args
 config = None
 extension = ".ytpl"
+colourless = False
 debug = 0
 
 # state
@@ -38,13 +39,19 @@ def diffs(list_):
     if added_count > 0:
         list_["items"]["added"] = added
         list_["items"]["added_count"] = added_count
-        diffs.append(f"added: {added_count}")
+        diffs.append("{0}added: {1}{2}".format(
+            "" if colourless else colours.grn,
+            {added_count},
+            "" if colourless else colours.off))
     removed = [list_["items"]["remote"][id] for id in (local - remote)]
     removed_count = len(removed)
     if removed_count > 0:
         list_["items"]["removed"] = removed
         list_["items"]["removed_count"] = removed_count
-        diffs.append(f"removed: {removed_count}")
+        diffs.append("{0}removed: {1}{2}".format(
+            "" if colourless else colours.red,
+            {removed_count},
+            "" if colourless else colours.off))
     return " | ".join(diffs)
 
 
@@ -59,7 +66,12 @@ def display(lists, expand_state):
     print("playlists:")
     for list_ in lists.values():
         info = ""
-        info += f"[{list_['id']}] {list_['title']}"
+        info += f"[{list_['id']}]"
+        if not colourless:
+            info += colours.hl
+        info += f" '{list_['title']}'"
+        if not colourless:
+            info += colours.off
         if "local_count" in list_["items"] or \
            "remote_count" in list_["items"]:
             info += " | count(s): {0}|{1}".format(
@@ -220,10 +232,18 @@ def run():
         const=True, default=False,
         help="overwrite local playlists set at target")
     parser.add_argument(
+        '-nc', '--no-colour', dest='colourless', action='store_const',
+        const=True, default=False,
+        help="disable use of terminal colour escape codes")
+    parser.add_argument(
         '-v', '--vebose', dest='verbose', action='store_const',
         const=True, default=False,
         help="enable verbose / debug output")
     args = parser.parse_args()
+
+    # global switches
+    global colourless
+    colourless = args.colourless
 
     if not sys.argv[1:]:
         parser.print_help()
