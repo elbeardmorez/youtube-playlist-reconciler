@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from utils.constants import cursor
 from client.youtube import youtube
 import os
 import sys
@@ -119,12 +120,11 @@ def dump(lists, target):
                         f"{target} :\n" + str(e))
             path = os.path.join(target, list_["title"] + extension)
             if os.path.exists(path) and overwrite == 0:
-                print("")
                 while True:
                     sys.stdout.write(
                         f"[user] target '{list_['title']}' exists, " +
                         "[o]verwrite [a]ll, or [c]ancel? [o/a/c]:  ")
-                    sys.stdout.write("\033[1D")
+                    sys.stdout.write(cursor.left)
                     sys.stdout.flush()
                     res = sys.stdin.read(1).lower()
                     if res == "c":
@@ -134,7 +134,7 @@ def dump(lists, target):
                             overwrite = 1
                         break
                     # reset
-                    sys.stdout.write("\033[B\r\033[2K\r\033[A")
+                    sys.stdout.write(cursor.reset)
                     sys.stdout.flush()
             with open(path, "w") as f:
                 f.write(lines)
