@@ -43,7 +43,7 @@ def diffs(list_):
             "" if colourless else colours.grn,
             {added_count},
             "" if colourless else colours.off))
-    removed = [list_["items"]["remote"][id] for id in (local - remote)]
+    removed = [list_["items"]["local"][id] for id in (local - remote)]
     removed_count = len(removed)
     if removed_count > 0:
         list_["items"]["removed"] = removed
