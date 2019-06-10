@@ -56,7 +56,8 @@ def diffs(list_):
 
 
 def diffs_dump(list_):
-    if list_["items"]["added_count"] > 0:
+    if "added_count" in list_["items"] and \
+       list_["items"]["added_count"] > 0:
         print(f"  # added: {list_['items']['added_count']}")
         for item in list_["items"]["added"]:
             print(f"  [{item[0]}] {item[1]}")
