@@ -61,6 +61,11 @@ def diffs_dump(list_):
         print(f"  # added: {list_['items']['added_count']}")
         for item in list_["items"]["added"]:
             print(f"  [{item[0]}] {item[1]}")
+    if "removed_count" in list_["items"] and \
+       list_["items"]["removed_count"] > 0:
+        print(f"  # removed: {list_['items']['removed_count']}")
+        for item in list_["items"]["removed"]:
+            print(f"  [{item[0]}] {item[1]}")
 
 
 def display(lists, expand_state):
