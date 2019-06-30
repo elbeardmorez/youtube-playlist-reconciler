@@ -62,12 +62,18 @@ def diffs(list_):
 def diffs_dump(list_):
     if "added_count" in list_["items"] and \
        list_["items"]["added_count"] > 0:
-        print(f"  # added: {list_['items']['added_count']}")
+        print("   # {0}added: {1}{2}".format(
+              "" if colourless else colours.hl,
+              list_['items']['added_count'],
+              "" if colourless else colours.off))
         for item in list_["items"]["added"]:
             print(f"  [{item[0]}] {item[1]}")
     if "removed_count" in list_["items"] and \
        list_["items"]["removed_count"] > 0:
-        print(f"  # removed: {list_['items']['removed_count']}")
+        print("   # {0}removed: {1}{2}".format(
+              "" if colourless else colours.hl,
+              list_['items']['removed_count'],
+              "" if colourless else colours.off))
         for item in list_["items"]["removed"]:
             print(f"  [{item[0]}] {item[1]}")
 
