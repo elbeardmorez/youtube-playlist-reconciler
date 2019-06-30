@@ -32,21 +32,25 @@ def config_read():
 
 def diffs(list_):
     diffs = []
-    local = set(list_["items"]["local"].keys())
-    remote = set(list_["items"]["remote"].keys())
-    added = [list_["items"]["remote"][id] for id in (remote - local)]
+    local = set(list_["items"]["local"].keys()
+                if "local" in list_["items"] else [])
+    remote = set(list_["items"]["remote"].keys()
+                 if "remote" in list_["items"] else [])
+    added = (remote - local)
     added_count = len(added)
     if added_count > 0:
-        list_["items"]["added"] = added
+        list_["items"]["added"] = \
+            [list_["items"]["remote"][id] for id in added]
         list_["items"]["added_count"] = added_count
         diffs.append("{0}added: {1}{2}".format(
             "" if colourless else colours.grn,
             {added_count},
             "" if colourless else colours.off))
-    removed = [list_["items"]["local"][id] for id in (local - remote)]
+    removed = (local - remote)
     removed_count = len(removed)
     if removed_count > 0:
-        list_["items"]["removed"] = removed
+        list_["items"]["removed"] = \
+            [list_["items"]["local"][id] for id in removed]
         list_["items"]["removed_count"] = removed_count
         diffs.append("{0}removed: {1}{2}".format(
             "" if colourless else colours.red,
@@ -86,7 +90,7 @@ def display(lists, expand_state):
                 list_["items"]["remote_count"]
                     if "remote_count" in list_["items"] else "-")
         diffs_ = ""
-        if "local" in list_["items"] and \
+        if "local" in list_["items"] or \
            "remote" in list_["items"]:
             diffs_ = diffs(list_)
             if len(diffs_) > 0:
