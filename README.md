@@ -58,12 +58,12 @@ optional arguments:
 
 ### update local playlist sets with remote playlist sets
 ```sh
-  $ ./youtube-playlist-reconciler --target local/path --remote --user tube69 --dump --overwrite
+  $ ./youtube-playlist-reconciler --target local/path --remote --user tube69 --overwrite
   $ ./youtube-playlist-reconciler --target local/path
 ```
 ```
   playlists:
-  [PL88rnnizU2vjUw5rB9p4S9zqKdCkE3gpG] | documentaries | count(s): 18|-
+  [PL88rnnizU2vjUw5rB9p4S9zqKdCkE3gpG] | documentaries | count(s): 18|18
 ```
 
 ## implementation

@@ -287,7 +287,7 @@ def run():
             print(f"[debug] using user: '{user}'")
         refresh(user, config)
 
-    if args.dump:
+    if args.dump or args.overwrite:
         # write local set
         for id, list_ in lists.items():
             if "local" not in list_["items"] or \
